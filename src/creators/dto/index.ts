@@ -1,1 +1,1 @@
-export * from './upsert-creator.type';
+export * from './upsert-creator.dto';
