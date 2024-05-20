@@ -1,4 +1,4 @@
-import { VideoVisibility } from '@prisma/client';
+import { ProcessedVideo, VideoVisibility } from '@prisma/client';
 
 export class SetVideoIsReady {
   videoId: string;
@@ -8,4 +8,5 @@ export class SetVideoIsReady {
   thumbnailUrl?: string;
   previewThumbnailUrl?: string;
   visibility: VideoVisibility;
+  videos: Array<ProcessedVideo>;
 }

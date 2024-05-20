@@ -80,18 +80,29 @@ export class VideoManagerService {
         `Updating video (${payload.videoId}) to be in ready state`,
       );
 
-      await this.prisma.video.update({
-        where: { id: payload.videoId },
-        data: {
-          title: payload.title,
-          description: payload.description,
-          tags: payload.tags,
-          thumbnailUrl: payload.thumbnailUrl,
-          previewThumbnailUrl: payload.thumbnailUrl,
-          visibility: payload.visibility,
-          status: 'Ready',
-          statusUpdatedAt: new Date(),
-        },
+
+      await this.prisma.$transaction(async (tx) => {
+        await tx.video.update({
+          where: { id: payload.videoId },
+          data: {
+            title: payload.title,
+            description: payload.description,
+            tags: payload.tags,
+            thumbnailUrl: payload.thumbnailUrl,
+            previewThumbnailUrl: payload.thumbnailUrl,
+            visibility: payload.visibility,
+            status: 'Ready',
+            statusUpdatedAt: new Date(),
+          },
+        });
+
+        await tx.processedVideo.deleteMany({
+          where: { videoId: payload.videoId },
+        });
+
+        await tx.processedVideo.createMany({
+          data: payload.videos,
+        });
       });
     } else {
       this.logger.warn(`Video (${payload.videoId}) is not in preparing state`);
