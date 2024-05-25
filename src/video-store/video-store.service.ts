@@ -14,7 +14,14 @@ export class VideoStoreService {
       where: { id: videoId },
       include: {
         creator: true,
-        processedVideos: true,
+        processedVideos: {
+          select: {
+            label: true,
+            url: true,
+            width: true,
+            height: true,
+          },
+        },
       },
     });
 
