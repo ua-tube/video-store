@@ -1,4 +1,8 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma';
 import { UpsertCreatorDto } from './dto';
 
@@ -29,6 +33,7 @@ export class CreatorsService {
         this.logger.error(
           `An error occurred when updating creator (${payload.id})`,
         );
+        throw new InternalServerErrorException();
       }
     } else {
       try {
@@ -38,6 +43,7 @@ export class CreatorsService {
         this.logger.error(
           `An error occurred when creating creator (${payload.id})`,
         );
+        throw new InternalServerErrorException();
       }
     }
   }
