@@ -13,8 +13,15 @@ export class VideoStoreService {
     const video = await this.prisma.video.findUnique({
       where: { id: videoId },
       include: {
-        Creator: true,
-        ProcessedVideos: true,
+        creator: true,
+        processedVideos: {
+          select: {
+            label: true,
+            url: true,
+            width: true,
+            height: true,
+          },
+        },
       },
     });
 

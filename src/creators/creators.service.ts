@@ -1,6 +1,10 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma';
-import { UpsertCreator } from './dto';
+import { UpsertCreatorDto } from './dto';
 
 @Injectable()
 export class CreatorsService {
@@ -8,7 +12,7 @@ export class CreatorsService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async upsertCreator(payload: UpsertCreator) {
+  async upsertCreator(payload: UpsertCreatorDto) {
     const creator = await this.prisma.creator.findUnique({
       where: { id: payload.id },
       select: { id: true },
@@ -29,6 +33,7 @@ export class CreatorsService {
         this.logger.error(
           `An error occurred when updating creator (${payload.id})`,
         );
+        throw new InternalServerErrorException();
       }
     } else {
       try {
@@ -38,6 +43,7 @@ export class CreatorsService {
         this.logger.error(
           `An error occurred when creating creator (${payload.id})`,
         );
+        throw new InternalServerErrorException();
       }
     }
   }

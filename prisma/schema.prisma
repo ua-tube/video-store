@@ -13,7 +13,7 @@ model Creator {
   displayName  String  @map("display_name")
   nickname     String  @unique
   thumbnailUrl String? @map("thumbnail_url")
-  Videos       Video[]
+  videos       Video[]
 
   @@map("creators")
 }
@@ -21,19 +21,20 @@ model Creator {
 model Video {
   id                    String           @id @db.Uuid
   creatorId             String           @map("creator_id") @db.Uuid
-  Creator               Creator          @relation(fields: [creatorId], references: [id])
+  creator               Creator          @relation(fields: [creatorId], references: [id], onDelete: Cascade)
   title                 String
   description           String?
   tags                  String?
   thumbnailUrl          String?          @map("thumbnail_url")
   previewThumbnailUrl   String?          @map("preview_thumbnail_url")
   visibility            VideoVisibility
+  lengthSeconds         Int              @map("length_seconds")
   isPublishedWithPublic Boolean          @map("is_published_with_public")
   status                VideoStatus
   createdAt             DateTime         @map("created_at") @db.Timestamptz(6)
   statusUpdatedAt       DateTime?        @map("status_updated_at") @db.Timestamptz(6)
-  Metrics               VideoMetrics?
-  ProcessedVideos       ProcessedVideo[]
+  metrics               VideoMetrics?
+  processedVideos       ProcessedVideo[]
 
   @@index([creatorId])
   @@index([visibility])
@@ -42,16 +43,15 @@ model Video {
 }
 
 model ProcessedVideo {
-  id            String @id @default(uuid()) @db.Uuid
-  videoFileId   String @map("video_file_id") @db.Uuid
-  videoId       String @map("video_id") @db.Uuid
-  Video         Video  @relation(fields: [videoId], references: [id])
-  label         String
-  width         Int
-  height        Int
-  size          BigInt
-  lengthSeconds Int    @map("length_seconds")
-  url           String
+  id          String @id @default(uuid()) @db.Uuid
+  videoFileId String @map("video_file_id") @db.Uuid
+  videoId     String @map("video_id") @db.Uuid
+  video       Video  @relation(fields: [videoId], references: [id], onDelete: Cascade)
+  label       String
+  width       Int
+  height      Int
+  size        BigInt
+  url         String
 
   @@index([videoId])
   @@map("processed_videos")
@@ -59,7 +59,7 @@ model ProcessedVideo {
 
 model VideoMetrics {
   videoId             String    @id @map("video_id") @db.Uuid
-  Video               Video     @relation(fields: [videoId], references: [id])
+  video               Video     @relation(fields: [videoId], references: [id], onDelete: Cascade)
   viewsCount          BigInt    @map("views_count")
   viewsCountUpdatedAt DateTime? @map("views_count_updated_at") @db.Timestamptz(6)
 
