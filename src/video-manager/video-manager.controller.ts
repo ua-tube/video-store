@@ -59,13 +59,4 @@ export class VideoManagerController {
     await this.videoManagerService.updateVideoResources(payload);
     ackMessage(context);
   }
-
-  @EventPattern('update_video_metrics')
-  async handleUpdateVideoMetrics(
-    @Payload() payload: UpdateVideoMetricsDto,
-    @Ctx() context: RmqContext,
-  ) {
-    await this.videoManagerService.updateVideoMetrics(payload);
-    ackMessage(context);
-  }
 }

@@ -119,7 +119,6 @@ export class VideoManagerService {
         `Updating video (${payload.videoId}) to be in ready state`,
       );
 
-
       await this.prisma.$transaction(async (tx) => {
         await tx.video.update({
           where: { id: payload.videoId },
