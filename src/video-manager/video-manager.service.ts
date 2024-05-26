@@ -5,7 +5,6 @@ import {
   SetVideoIsReady,
   UnregisterVideo,
   UpdateVideoDto,
-  UpdateVideoMetricsDto,
   UpdateVideoResourcesDto,
 } from './dto';
 
@@ -189,30 +188,5 @@ export class VideoManagerService {
         data: videos,
       });
     });
-  }
-
-  async updateVideoMetrics(payload: UpdateVideoMetricsDto) {
-    const videoMetrics = await this.prisma.videoMetrics.findUnique({
-      where: { videoId: payload.videoId },
-    });
-
-    if (!videoMetrics) {
-      this.logger.warn(`Video metrics (${payload.videoId}) does not exists`);
-      return;
-    }
-
-    if (
-      !videoMetrics.viewsCountUpdatedAt ||
-      payload.updatedAt > videoMetrics.viewsCountUpdatedAt
-    ) {
-      await this.prisma.videoMetrics.update({
-        where: { videoId: payload.videoId },
-        data: {
-          viewsCount: BigInt(payload.viewsCount),
-          viewsCountUpdatedAt: payload.updatedAt,
-        },
-      });
-      this.logger.log(`Video (${payload.videoId}) metrics updated`);
-    }
   }
 }

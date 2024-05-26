@@ -6,7 +6,6 @@ import {
   SetVideoIsReady,
   UnregisterVideo,
   UpdateVideoDto,
-  UpdateVideoMetricsDto,
   UpdateVideoResourcesDto,
 } from './dto';
 import { ackMessage } from '../common/utils';
