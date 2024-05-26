@@ -8,7 +8,7 @@ export class HistoryService {
 
   constructor(private readonly prisma: PrismaService) {}
 
-  async updateVideoMetrics(payload: UpdateVideoMetrics) {
+  async updateVideoViewsMetrics(payload: UpdateVideoMetrics) {
     const video = await this.prisma.video.findUnique({
       where: { id: payload.videoId },
       select: { status: true },
