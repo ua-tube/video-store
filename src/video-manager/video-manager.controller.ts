@@ -3,7 +3,7 @@ import { VideoManagerService } from './video-manager.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import {
   CreateVideoDto,
-  SetVideoIsReady,
+  SetVideoIsPublished,
   UnregisterVideo,
   UpdateVideoDto,
   UpdateVideoResourcesDto,
@@ -41,12 +41,12 @@ export class VideoManagerController {
     ackMessage(context);
   }
 
-  @EventPattern('set_video_is_ready')
-  async handleSetVideoIsReady(
-    @Payload() payload: SetVideoIsReady,
+  @EventPattern('set_video_is_published')
+  async handleSetVideoIsPublished(
+    @Payload() payload: SetVideoIsPublished,
     @Ctx() context: RmqContext,
   ) {
-    await this.videoManagerService.setVideoIsReady(payload);
+    await this.videoManagerService.setVideoIsPublished(payload);
     ackMessage(context);
   }
 

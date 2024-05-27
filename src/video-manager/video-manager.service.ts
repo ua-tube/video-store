@@ -2,7 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma';
 import {
   CreateVideoDto,
-  SetVideoIsReady,
+  SetVideoIsPublished,
   UnregisterVideo,
   UpdateVideoDto,
   UpdateVideoResourcesDto,
@@ -102,10 +102,13 @@ export class VideoManagerService {
     });
   }
 
-  async setVideoIsReady(payload: SetVideoIsReady) {
+  async setVideoIsPublished(payload: SetVideoIsPublished) {
     const video = await this.prisma.video.findUnique({
       where: { id: payload.videoId },
-      select: { status: true },
+      select: {
+        status: true,
+        processedVideos: true,
+      },
     });
 
     if (!video) {
@@ -122,24 +125,20 @@ export class VideoManagerService {
         await tx.video.update({
           where: { id: payload.videoId },
           data: {
-            title: payload.title,
-            description: payload.description,
-            tags: payload.tags,
-            thumbnailUrl: payload.thumbnailUrl,
-            previewThumbnailUrl: payload.thumbnailUrl,
-            visibility: payload.visibility,
-            status: 'Ready',
+            status: 'Published',
             statusUpdatedAt: new Date(),
           },
         });
 
-        await tx.processedVideo.deleteMany({
-          where: { videoId: payload.videoId },
-        });
+        if (payload.videos.length > video.processedVideos.length) {
+          await tx.processedVideo.deleteMany({
+            where: { videoId: payload.videoId },
+          });
 
-        await tx.processedVideo.createMany({
-          data: payload.videos,
-        });
+          await tx.processedVideo.createMany({
+            data: payload.videos,
+          });
+        }
       });
     } else {
       this.logger.warn(`Video (${payload.videoId}) is not in preparing state`);
