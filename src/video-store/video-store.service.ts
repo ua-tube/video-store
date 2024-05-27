@@ -28,7 +28,7 @@ export class VideoStoreService {
     if (!video) throw new BadRequestException('Video not found');
 
     if (
-      (video.status !== 'Published' || video.visibility == 'Private') &&
+      (video.status !== 'Published' || video.visibility === 'Private') &&
       creatorId !== video.creatorId
     ) {
       throw new ForbiddenException('Is not your video');
