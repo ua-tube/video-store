@@ -52,10 +52,12 @@ export class VideoManagerController {
 
   @EventPattern('update_video_resources')
   async handleUpdateVideoResources(
-    @Payload() payload: UpdateVideoResourcesDto,
+    @Payload() payload: string,
     @Ctx() context: RmqContext,
   ) {
-    await this.videoManagerService.updateVideoResources(payload);
+    await this.videoManagerService.updateVideoResources(
+      JSON.parse(payload) as UpdateVideoResourcesDto,
+    );
     ackMessage(context);
   }
 }

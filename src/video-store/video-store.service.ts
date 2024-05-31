@@ -14,26 +14,26 @@ export class VideoStoreService {
       where: { id: videoId },
       include: {
         creator: true,
-        processedVideos: {
-          select: {
-            label: true,
-            url: true,
-            width: true,
-            height: true,
-          },
-        },
+        processedVideos: true,
+        metrics: true,
       },
     });
 
     if (!video) throw new BadRequestException('Video not found');
 
-    if (
-      (video.status !== 'Published' || video.visibility === 'Private') &&
-      creatorId !== video.creatorId
-    ) {
+    if (video.visibility === 'Private' && creatorId !== video.creatorId) {
       throw new ForbiddenException('Is not your video');
     }
 
-    return video;
+    return {
+      ...video,
+      processedVideos: video.processedVideos.map((v) => ({
+        ...v,
+        size: v.size.toString(),
+      })),
+      metrics: {
+        viewsCount: video.metrics.viewsCount.toString(),
+      },
+    };
   }
 }

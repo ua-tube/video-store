@@ -9,4 +9,5 @@ export class UpdateVideoDto {
   previewThumbnailUrl: string;
   visibility: VideoVisibility;
   status: VideoStatus;
+  lengthSeconds?: number;
 }

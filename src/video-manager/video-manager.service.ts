@@ -15,6 +15,8 @@ export class VideoManagerService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createVideo(payload: CreateVideoDto) {
+    this.logger.log(`Create video (${payload.id}) is called`);
+
     const video = await this.prisma.video.findUnique({
       where: { id: payload.id },
       select: { id: true },
@@ -50,6 +52,8 @@ export class VideoManagerService {
   }
 
   async updateVideo(payload: UpdateVideoDto) {
+    this.logger.log(`Update video (${payload.id}) is called`);
+
     const video = await this.prisma.video.findUnique({
       where: { id: payload.id },
       select: { id: true },
@@ -70,6 +74,7 @@ export class VideoManagerService {
           thumbnailUrl: payload.thumbnailUrl,
           previewThumbnailUrl: payload.previewThumbnailUrl,
           visibility: payload.visibility,
+          lengthSeconds: payload?.lengthSeconds,
         },
       });
       this.logger.log(`Video (${payload.id}) is updated`);
@@ -81,6 +86,8 @@ export class VideoManagerService {
   }
 
   async unregisterVideo(payload: UnregisterVideo) {
+    this.logger.log(`Unregister video (${payload.videoId}) is called`);
+
     const video = await this.prisma.video.findUnique({
       where: { id: payload.videoId },
       select: { status: true },
@@ -103,11 +110,13 @@ export class VideoManagerService {
   }
 
   async setVideoIsPublished(payload: SetVideoIsPublished) {
+    this.logger.log(`Set video (${payload.videoId}) is published is called`);
+
     const video = await this.prisma.video.findUnique({
       where: { id: payload.videoId },
       select: {
         status: true,
-        processedVideos: true,
+        visibility: true,
       },
     });
 
@@ -117,28 +126,17 @@ export class VideoManagerService {
     }
 
     if (video.status === 'Preparing') {
-      this.logger.log(
-        `Updating video (${payload.videoId}) to be in ready state`,
-      );
+      this.logger.log(`Updating video (${payload.videoId}) to be published`);
 
       await this.prisma.$transaction(async (tx) => {
         await tx.video.update({
           where: { id: payload.videoId },
           data: {
             status: 'Published',
+            isPublishedWithPublic: video.visibility === 'Public',
             statusUpdatedAt: new Date(),
           },
         });
-
-        if (payload.videos.length > video.processedVideos.length) {
-          await tx.processedVideo.deleteMany({
-            where: { videoId: payload.videoId },
-          });
-
-          await tx.processedVideo.createMany({
-            data: payload.videos,
-          });
-        }
       });
     } else {
       this.logger.warn(`Video (${payload.videoId}) is not in preparing state`);
@@ -146,6 +144,8 @@ export class VideoManagerService {
   }
 
   async updateVideoResources(payload: UpdateVideoResourcesDto) {
+    this.logger.log(`Update video (${payload.videoId}) resources is called`);
+
     const video = await this.prisma.video.findUnique({
       where: { id: payload.videoId },
       select: {
@@ -171,8 +171,8 @@ export class VideoManagerService {
     if (payload.merge) {
       const set = new Set();
       videos = videos.filter((item) => {
-        if (!set.has(item.id)) {
-          set.add(item.id);
+        if (!set.has(item.label)) {
+          set.add(item.label);
           return true;
         }
         return false;
