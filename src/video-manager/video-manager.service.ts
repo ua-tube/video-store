@@ -36,7 +36,6 @@ export class VideoManagerService {
           tags: payload.tags,
           visibility: payload.visibility,
           lengthSeconds: payload.lengthSeconds,
-          isPublishedWithPublic: false,
           status: 'Preparing',
           createdAt: payload.createdAt,
           metrics: { create: { viewsCount: 0 } },
@@ -132,7 +131,6 @@ export class VideoManagerService {
           where: { id: payload.videoId },
           data: {
             status: 'Published',
-            isPublishedWithPublic: video.visibility === 'Public',
             statusUpdatedAt: new Date(),
           },
         });
