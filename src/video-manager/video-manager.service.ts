@@ -5,7 +5,6 @@ import {
   SetVideoIsPublished,
   UnregisterVideo,
   UpdateVideoDto,
-  UpdateVideoResourcesDto,
 } from './dto';
 
 @Injectable()
@@ -141,51 +140,5 @@ export class VideoManagerService {
     } else {
       this.logger.warn(`Video (${payload.videoId}) is not in preparing state`);
     }
-  }
-
-  async updateVideoResources(payload: UpdateVideoResourcesDto) {
-    this.logger.log(`Update video (${payload.videoId}) resources is called`);
-
-    const video = await this.prisma.video.findUnique({
-      where: { id: payload.videoId },
-      select: {
-        status: true,
-        processedVideos: true,
-      },
-    });
-
-    if (!video) {
-      this.logger.warn(`Video (${payload.videoId}) does not exists`);
-      return;
-    }
-
-    if (video.status !== 'Preparing') {
-      this.logger.warn('This video already prepared');
-      return;
-    }
-
-    let videos = payload.merge
-      ? [...payload.videos, ...video.processedVideos]
-      : payload.videos;
-
-    if (payload.merge) {
-      const set = new Set();
-      videos = videos.filter((item) => {
-        if (!set.has(item.label)) {
-          set.add(item.label);
-          return true;
-        }
-        return false;
-      }, set);
-    }
-
-    await this.prisma.$transaction(async (tx) => {
-      await tx.processedVideo.deleteMany({
-        where: { videoId: payload.videoId },
-      });
-      await tx.processedVideo.createMany({
-        data: videos,
-      });
-    });
   }
 }

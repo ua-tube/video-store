@@ -6,7 +6,6 @@ import {
   SetVideoIsPublished,
   UnregisterVideo,
   UpdateVideoDto,
-  UpdateVideoResourcesDto,
 } from './dto';
 import { ackMessage } from '../common/utils';
 
@@ -47,17 +46,6 @@ export class VideoManagerController {
     @Ctx() context: RmqContext,
   ) {
     await this.videoManagerService.setVideoIsPublished(payload);
-    ackMessage(context);
-  }
-
-  @EventPattern('update_video_resources')
-  async handleUpdateVideoResources(
-    @Payload() payload: string,
-    @Ctx() context: RmqContext,
-  ) {
-    await this.videoManagerService.updateVideoResources(
-      JSON.parse(payload) as UpdateVideoResourcesDto,
-    );
     ackMessage(context);
   }
 }

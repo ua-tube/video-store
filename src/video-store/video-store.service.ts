@@ -27,6 +27,7 @@ export class VideoStoreService {
 
     return {
       ...video,
+      masterPlaylistUrl: `/videos/service-uploaded-video/${video.id}/master.m3u8`,
       processedVideos: video.processedVideos.map((v) => ({
         ...v,
         size: v.size.toString(),
